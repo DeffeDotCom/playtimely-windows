@@ -1,7 +1,7 @@
 # Code signing policy
 
 ## Current status
-SignPath Foundation application is being prepared. No Foundation approval or certificate is claimed. Existing previews are not Authenticode publisher-signed. A verified RSA update-metadata signature is not the same as an Authenticode publisher signature.
+SignPath Foundation application was submitted on 2026-11-21. No Foundation approval or certificate is claimed. Existing previews are not Authenticode publisher-signed. A verified RSA update-metadata signature is not the same as an Authenticode publisher signature.
 
 ## Proposed signing scope
 Only our Windows agent, tray and installer built from this public Windows-only repository may be submitted. No private website/server/database/mobile/Mac code, family connections, credentials, private keys or third-party executable payloads may be signed as our own code. Do not create personalised installers with a family's connection data inside the public signing pipeline.

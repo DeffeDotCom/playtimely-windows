@@ -14,7 +14,7 @@ This repository contains **only** the Windows background service, tray, installe
 ## Download and setup
 Use [Playtimely downloads](https://playtimely.com/downloads) and the parent dashboard's personal installer to connect a gaming PC. A generic unpaired build is not an already configured family installation. Source releases are also available from the downloads page.
 
-See [BUILDING.md](BUILDING.md), [PRIVACY.md](PRIVACY.md) and [Code signing policy](CODE_SIGNING.md). SignPath Foundation application is being prepared; **no SignPath approval or signature is claimed**. Existing previews remain unsigned by an Authenticode publisher until signing is actually configured.
+See [BUILDING.md](BUILDING.md), [PRIVACY.md](PRIVACY.md) and [Code signing policy](CODE_SIGNING.md). SignPath Foundation application was submitted on 2026-11-21; **no SignPath approval or signature is claimed**. Existing previews remain unsigned by an Authenticode publisher until signing is actually configured.
 
 The older component READMEs contain chronological prototype notes. This root README and the current source describe present behaviour, including aggregate usage reporting, signed update downloads, daily budgets and closing notices.
 
