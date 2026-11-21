@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+ xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+ xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+ xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
+ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+ IgnorableNamespaces="uap desktop desktop6 rescap">
+ <Identity Name="WebFinance.Playtimely.Prototype" Publisher="CN=Playtimely-Packaging-Prototype" Version="0.13.4.0" ProcessorArchitecture="x64"/>
+ <Properties><DisplayName>Playtimely Packaging Prototype</DisplayName><PublisherDisplayName>WebFinance Digital i Sverige AB</PublisherDisplayName><Logo>Assets\StoreLogo.png</Logo></Properties>
+ <Resources><Resource Language="en-US"/><Resource Language="sv-SE"/></Resources>
+ <Dependencies><TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.28000.0"/></Dependencies>
+ <Applications>
+  <Application Id="Playtimely" Executable="Playtimely.Tray.exe" EntryPoint="Windows.FullTrustApplication">
+   <uap:VisualElements DisplayName="Playtimely Packaging Prototype" Description="Unsigned packaging-only prototype; not a supported installer" BackgroundColor="#173b33" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png"/>
+   <Extensions>
+    <desktop6:Extension Category="windows.service" Executable="GameControl.Agent.exe" EntryPoint="Windows.FullTrustApplication">
+     <desktop6:Service Name="GameControlAgent" StartupType="auto" StartAccount="localSystem"/>
+    </desktop6:Extension>
+    <desktop:Extension Category="windows.startupTask" Executable="Playtimely.Tray.exe" EntryPoint="Windows.FullTrustApplication">
+     <desktop:StartupTask TaskId="PlaytimelyTray" Enabled="true" DisplayName="Playtimely"/>
+    </desktop:Extension>
+   </Extensions>
+  </Application>
+ </Applications>
+ <Capabilities><rescap:Capability Name="runFullTrust"/><rescap:Capability Name="packagedServices"/><rescap:Capability Name="localSystemServices"/></Capabilities>
+</Package>

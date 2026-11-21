@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+**/out/
+artifacts/
+*.pfx
+*.p12
+connection.json
+policy.json
+.env*

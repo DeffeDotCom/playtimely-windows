@@ -1,0 +1,10 @@
+using GameControl;
+using Xunit;
+public class BudgetGrantNotificationsTests {
+ static readonly DateTimeOffset Now=DateTimeOffset.Parse("2026-11-13T12:00:00Z");
+ static DisplayStatus Status(int extra,string day="2026-11-13",long device=1)=>new(1,Now,Now,"Europe/Stockholm",[],true,BudgetReceiptScope:device.ToString(),BudgetExtraMinutes:extra,BudgetDay:day);
+ [Fact] public void First_load_is_silent_then_only_positive_received_changes_notify(){var n=new BudgetGrantNotifications();Assert.Equal(0,n.Observe(Status(20),true));Assert.Equal(10,n.Observe(Status(30),true));Assert.Equal(0,n.Observe(Status(30),true));Assert.Equal(0,n.Observe(Status(45),false));Assert.Equal(15,n.Observe(Status(45),true));Assert.Equal(0,n.Observe(Status(0),true));Assert.Equal(5,n.Observe(Status(5),true));}
+ [Fact] public void Restarts_keep_confirmation_without_replaying_notification(){var path=Path.Combine(Path.GetTempPath(),Guid.NewGuid()+".json");try{var n=new BudgetGrantNotifications(path);n.Observe(Status(0),true);Assert.Equal(10,n.Observe(Status(10),true));var restarted=new BudgetGrantNotifications(path);Assert.Equal(0,restarted.Observe(Status(10),true));Assert.Equal(10,restarted.LatestMinutes);Assert.Equal(20,restarted.Observe(Status(30),true));}finally{File.Delete(path);}}
+ [Fact] public void Day_change_and_reconnection_do_not_confuse_grants(){var n=new BudgetGrantNotifications();n.Observe(Status(30),true);Assert.Equal(0,n.Observe(Status(0,"2026-11-14"),true));Assert.Equal(0,n.LatestMinutes);Assert.Equal(10,n.Observe(Status(10,"2026-11-14"),true));Assert.Equal(0,n.Observe(Status(50,"2026-11-14",2),true));Assert.Equal(0,n.LatestMinutes);}
+ [Fact] public void Every_supported_language_has_the_notice(){foreach(var code in TrayLanguage.Supported){TrayLanguage.Select(code);var key="{0} extra minutes added for today. Schedules and blocks still apply.";var text=TrayLanguage.Get(key);Assert.False(string.IsNullOrWhiteSpace(text));Assert.Contains("{0}",text);if(code!="en")Assert.NotEqual(key,text);}TrayLanguage.Select("en");}
+}

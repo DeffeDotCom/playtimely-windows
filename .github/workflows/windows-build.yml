@@ -1,0 +1,112 @@
+name: Windows client build (manual; no publication)
+on:
+  workflow_dispatch:
+    inputs:
+      sign:
+        description: Request Foundation production signing (requires approved account and human approval)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+  actions: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    environment: ${{ inputs.sign && 'signpath-release' || 'unsigned-build' }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Require configured signing scope
+        if: inputs.sign
+        shell: pwsh
+        env:
+          ENABLED: ${{ vars.SIGNPATH_ENABLED }}
+          ORG: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          PROJECT: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          POLICY: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          COMPONENTS: ${{ vars.SIGNPATH_COMPONENTS_CONFIG }}
+          INSTALLER: ${{ vars.SIGNPATH_INSTALLER_CONFIG }}
+          TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+        run: |
+          if($env:ENABLED -ne 'true'){throw 'Production signing is not enabled'}
+          foreach($n in @('ORG','PROJECT','POLICY','COMPONENTS','INSTALLER','TOKEN')){
+            if([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($n))){throw "Missing signing configuration: $n"}
+          }
+      - name: Portable tests
+        run: dotnet test agent-tests/Agent.Tests.csproj --nologo
+      - name: Build client executables
+        run: ./build.ps1 -Stage Components
+      - name: Stage exact client files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts/components | Out-Null
+          Copy-Item agent/out/GameControl.Agent.exe artifacts/components/
+          Copy-Item agent-tray/out/Playtimely.Tray.exe artifacts/components/
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        id: components
+        with:
+          name: windows-components-unsigned
+          path: artifacts/components/*.exe
+          if-no-files-found: error
+          retention-days: 7
+      - name: Sign client executables
+        if: inputs.sign
+        uses: signpath/github-action-submit-signing-request@a2c5b60d9c75f073142b653c354b632eedce097b # v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_COMPONENTS_CONFIG }}
+          github-artifact-id: ${{ steps.components.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signed-components
+      - name: Verify signatures before embedding
+        if: inputs.sign
+        shell: pwsh
+        run: |
+          foreach($pair in @(@('GameControl.Agent.exe','agent/out'),@('Playtimely.Tray.exe','agent-tray/out'))){
+            $source=Join-Path signed-components $pair[0]
+            $sig=Get-AuthenticodeSignature $source
+            if($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'SignPath Foundation'){throw 'Missing valid Foundation component signature'}
+            Copy-Item $source $pair[1] -Force
+          }
+      - name: Embed current components in installer
+        run: ./build.ps1 -Stage Installer
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        id: installer
+        with:
+          name: windows-installer-unsigned
+          path: agent-installer/out/GameControl.Setup.exe
+          if-no-files-found: error
+          retention-days: 7
+      - name: Sign installer
+        if: inputs.sign
+        uses: signpath/github-action-submit-signing-request@a2c5b60d9c75f073142b653c354b632eedce097b # v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_INSTALLER_CONFIG }}
+          github-artifact-id: ${{ steps.installer.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signed-installer
+      - name: Verify signed installer
+        if: inputs.sign
+        shell: pwsh
+        run: |
+          $sig=Get-AuthenticodeSignature signed-installer/GameControl.Setup.exe
+          if($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'SignPath Foundation'){throw 'Missing valid Foundation installer signature'}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: inputs.sign
+        with:
+          name: windows-installer-signed-review-before-publication
+          path: signed-installer/GameControl.Setup.exe
+          if-no-files-found: error
+          retention-days: 7

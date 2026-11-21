@@ -1,0 +1,8 @@
+using GameControl;
+using Xunit;
+public class DayControlTests {
+ [Fact] public void ReductionChangesOnlyTodayAndNeverResetsUse(){var day=DateTimeOffset.Parse("2026-11-21T12:00:00Z");var limit=new BudgetLimit(120,120,"all_known","finish",-45,"2026-11-21");var b=new DailyBudget{Day="2026-11-21",UsedSeconds=60*60};Assert.Equal(15*60,b.Remaining(limit.Minutes(day,"Europe/Stockholm")));Assert.Equal(120,limit.Minutes(day.AddDays(1),"Europe/Stockholm"));Assert.Equal(0,(limit with {ExtraMinutes=-720}).Minutes(day,"UTC"));Assert.Equal(3600,b.UsedSeconds);}
+ [Theory][InlineData("notify",false,false)][InlineData("finish",false,true)][InlineData("grace",false,false)][InlineData("stop",true,true)] public void StopModesDistinguishContinuingAndNewGames(string mode,bool oldBlocked,bool newBlocked){var s=new BudgetExhaustion();var now=DateTimeOffset.UtcNow;s.Update("request",0,mode,now,0,["1:100"]);Assert.Equal(oldBlocked,s.Blocks("1:100"));Assert.Equal(newBlocked,s.Blocks("2:200"));}
+ [Fact] public void GraceSurvivesRestartAndRetryDoesNotExtendIt(){var now=DateTimeOffset.UtcNow;var b=new DailyBudget{Day="2026-11-21"};b.ManualStop.Update("request",0,"grace",now,0,["1:100"]);var json=System.Text.Json.JsonSerializer.Serialize(b);var copy=System.Text.Json.JsonSerializer.Deserialize<DailyBudget>(json)!;copy.ManualStop.Update("request",0,"grace",now.AddMinutes(11),660,["1:100"]);Assert.True(copy.ManualStop.Blocks("1:100"));copy.ManualStop.Update("",null,"stop",now.AddMinutes(12),720,[]);Assert.False(copy.ManualStop.Blocks("1:100"));}
+ [Fact] public void StopExpiresOffline(){var now=DateTimeOffset.UtcNow;var stop=new GameStop(Guid.NewGuid().ToString(),"stop",now,now.AddMinutes(30));Assert.True(stop.Active(now));Assert.False(stop.Active(now.AddMinutes(30)));}
+}
