@@ -1,5 +1,5 @@
 {
-  ".github/workflows/windows-build.yml": "d2c8b712155dd5756dc77b714a84aa90c8652cf8aaad926eff70a375fe513c38",
+  ".github/workflows/windows-build.yml": "7d605e436755fd205ae9bfa2cac7a277cc23e1336a3a467d3b2a36934965751d",
   ".gitignore": "342028a90de5280922d16ba623306b717e7e35f6b74eb9eab409e7453ed9d453",
   "BUILDING.md": "f4524f9ec567e620a10e82a23d7775c3520e6f62d6ac8113f697384aa1d25421",
   "CODE_SIGNING.md": "ee5c3fb5d77d672f2e3d9d78162e635deffdcd3b685c3602a41d738efbb7513b",
@@ -108,7 +108,7 @@
   "agent/install.ps1": "4a379f86a36dfcf780b8b2891bbe0bbed8f81af3f9f62f919e364197de31b12d",
   "agent/release-public.pem": "e3a1bec2dbb3ac095ff3be2240f8ec3e891240bcb46ed2eccaa88f88aa1a27a9",
   "agent/uninstall.ps1": "aa595c93e010bec87ba04fb6e78274997de3954f3428730c3ec8c46e609f0157",
-  "build.ps1": "25a87fbdab0149659ebd27f4e38c73ff78ed3cc853e728500e59eee74177fcfb",
+  "build.ps1": "1f6c090dd7084d4c85cc76afd53c80590d99369ebb102ff4a55a2497730c9e15",
   "deploy/local-windows-qa.ps1": "94615f2031dc3c3570f2231cfafc7a833f96e73fa17e0f4bda5fecd8da697e1b",
   "deploy/windows-smoke.ps1": "c993512cba2d330749b22ff840d83da825b07f7ad735dc8f240079cd1a74d64f",
   "desktop-ui/ContentWindow.cs": "a2171964df67f0bf908dfef9b04d5d3aa3492ba40adde28b537aa1590c9784b7",

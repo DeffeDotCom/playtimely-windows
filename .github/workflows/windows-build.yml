@@ -41,6 +41,16 @@ jobs:
         run: dotnet test agent-tests/Agent.Tests.csproj --nologo
       - name: Build client executables
         run: ./build.ps1 -Stage Components
+      - name: Check signing metadata
+        shell: pwsh
+        run: |
+          $versions=@()
+          foreach($f in @('agent/out/GameControl.Agent.exe','agent-tray/out/Playtimely.Tray.exe')){
+            $v=(Get-Item $f).VersionInfo
+            if($v.ProductName -ne 'Playtimely Windows Agent' -or $v.CompanyName -ne 'WebFinance Digital i Sverige AB'){throw 'Unexpected component signing metadata'}
+            $versions+=@($v.ProductVersion)
+          }
+          if(($versions | Select-Object -Unique).Count -ne 1){throw 'Component versions differ'}
       - name: Stage exact client files
         shell: pwsh
         run: |
@@ -78,6 +88,12 @@ jobs:
           }
       - name: Embed current components in installer
         run: ./build.ps1 -Stage Installer
+      - name: Check installer signing metadata
+        shell: pwsh
+        run: |
+          $v=(Get-Item agent-installer/out/GameControl.Setup.exe).VersionInfo
+          $agent=(Get-Item agent/out/GameControl.Agent.exe).VersionInfo
+          if($v.ProductName -ne 'Playtimely Windows Agent' -or $v.ProductVersion -ne $agent.ProductVersion){throw 'Installer/component metadata differ'}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         id: installer
         with:
