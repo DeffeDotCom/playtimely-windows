@@ -1,4 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
-  <PropertyGroup><Version>0.13.4</Version><TargetFramework>net10.0-windows</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><OutputType>Exe</OutputType><AssemblyName>GameControl.Agent</AssemblyName><EnableWindowsTargeting>true</EnableWindowsTargeting></PropertyGroup>
+  <PropertyGroup><Version>0.13.5</Version><TargetFramework>net10.0-windows</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><OutputType>Exe</OutputType><AssemblyName>GameControl.Agent</AssemblyName><EnableWindowsTargeting>true</EnableWindowsTargeting></PropertyGroup>
   <ItemGroup><PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.0" /><PackageReference Include="System.Management" Version="10.0.0" /></ItemGroup>
 <ItemGroup><EmbeddedResource Include="catalog.json" LogicalName="Playtimely.GameCatalog"/></ItemGroup><ItemGroup><EmbeddedResource Include="release-public.pem" LogicalName="Playtimely.ReleaseKey"/></ItemGroup></Project>

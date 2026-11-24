@@ -57,6 +57,10 @@ internal static class Program {
   var status=new DisplayStatus(1,now,now,"Europe/Stockholm",[],true,BudgetRemainingSeconds:0,BudgetUsedSeconds:18000,BudgetLimitMinutes:300,PlayedToday:[new("fortnite",18000)],Notices:[notice]);
   int count=0;window.OperationalNotice+=_=>count++;window.Render(status,now);window.Render(status,now);Application.DoEvents();
   if(count!=1)throw new Exception("Operational notice duplicated");
+  var icon=Children(window).OfType<PictureBox>().Single(p=>p.AccessibleName=="Fortnite");
+  if(icon.Image is null || icon.Image.Width!=64)throw new Exception("Fortnite artwork missing from daily summary");
+  window.FitToWorkArea(new Rectangle(0,0,400,800));Application.DoEvents();
+  Capture(window,"sv","game-artwork");
   var labels=Children(window).OfType<Label>().Select(l=>l.Text).ToArray();
   if(!labels.Any(t=>t.Contains("5 h 00 min")&&t.Contains("300 min"))||!labels.Any(t=>t.Contains("Fortnite — 5 h 00 min")))throw new Exception("Budget summary missing");
   window.ScrollToSummary();Application.DoEvents();

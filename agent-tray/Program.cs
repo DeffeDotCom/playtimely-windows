@@ -129,7 +129,7 @@ sealed class StatusWindow:Form {
   summary.Text=expired?L("Trial ended — saved game limits are paused until a subscription is active."):(s.BudgetLimitMinutes is null?L("No daily limit."):GameNoticeText.Budget(s.BudgetUsedSeconds,s.BudgetLimitMinutes))+(fresh?"":"\n"+L("Agent is not responding. These are the last known rules."));
   var today=(s.PlayedToday??[]).Where(g=>GameCatalog.Contains(g.App)&&g.Seconds>0).Take(100).ToArray();
   var playedKey=JsonSerializer.Serialize(today.Select(g=>new {g.App,Minutes=g.Seconds/60}));
-  if(playedKey!=playedFingerprint){foreach(Control child in played.Controls.Cast<Control>().ToArray())child.Dispose();played.Controls.Clear();foreach(var g in today)played.Controls.Add(new Label{Text=GameCatalog.Name(g.App)+" — "+GameNoticeText.Duration(g.Seconds),AutoSize=true,MaximumSize=new Size(390,0),Margin=new Padding(0,10,0,4),BackColor=Color.White});played.Controls.Add(new Label{Text=L("Includes background games. Simultaneous games may overlap."),AutoSize=true,MaximumSize=new Size(390,0),Margin=new Padding(0,12,0,4),BackColor=Color.White,ForeColor=Color.DimGray});playedFingerprint=playedKey;}
+  if(playedKey!=playedFingerprint){foreach(Control child in played.Controls.Cast<Control>().ToArray())child.Dispose();played.Controls.Clear();foreach(var g in today)played.Controls.Add(GameArtwork.Row(g.App,GameCatalog.Name(g.App)+" — "+GameNoticeText.Duration(g.Seconds),Font));played.Controls.Add(new Label{Text=L("Includes background games. Simultaneous games may overlap."),AutoSize=true,MaximumSize=new Size(390,0),Margin=new Padding(0,12,0,4),BackColor=Color.White,ForeColor=Color.DimGray});playedFingerprint=playedKey;}
   welcome.UpdateConnection(fresh && s.HasPolicy);notificationConsent.UpdateConnection(fresh && s.HasPolicy);
   service.Text=!fresh?L("Agent is not responding. These are the last known rules."):!s.HasPolicy?L("Waiting for your family’s rules…"):L("Your family’s rules are active.");
   service.ForeColor=fresh?ForeColor:Color.DarkOrange;
@@ -164,7 +164,7 @@ sealed class StatusWindow:Form {
    foreach(Control control in games.Controls.Cast<Control>().ToArray())control.Dispose();games.Controls.Clear();rows.Clear();transitions.Clear();minute=-1;fingerprint=key;
    foreach(var rule in s.Rules){
     var panel=new GameStatusCard{Width=440};
-    var title=new Label{Text=GameCatalog.Name(rule.App),AutoSize=true,MaximumSize=new Size(410,0),Font=new Font(Font.FontFamily,13,FontStyle.Bold),BackColor=Color.White,Margin=new Padding(0,0,0,10)};
+    var title=GameArtwork.Row(rule.App,GameCatalog.Name(rule.App),new Font(Font.FontFamily,13,FontStyle.Bold));
     var state=new Label{AutoSize=true,MaximumSize=new Size(410,0),Font=new Font(Font.FontFamily,13,FontStyle.Bold),Padding=new Padding(9,6,9,6),Margin=new Padding(0,0,0,10)};
     var detail=new Label{AutoSize=true,MaximumSize=new Size(410,0),ForeColor=Color.FromArgb(73,88,82),Margin=new Padding(0,0,0,4)};
     panel.Controls.Add(title);panel.Controls.Add(state);panel.Controls.Add(detail);games.Controls.Add(panel);var ask=new StatusActionButton{Text=L("Ask for more time…"),Height=42,Tag="full-width",FlatStyle=FlatStyle.Flat,Margin=new Padding(0,12,0,0)};
